@@ -77,7 +77,7 @@ void render(double now) {
     snake.draw();
 
     // draw score
-    ctx.setFillColorRgb(30, 30, 30);
+    ctx.setFillColorRgb(50, 180, 65);
     ctx.font = '12pt sans-serif';
     ctx.fillText('Score: $score', 10, 25);
 
