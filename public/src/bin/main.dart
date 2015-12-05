@@ -150,9 +150,8 @@ class FoodBlock extends Block {
           roundToNearest(rand.nextDouble() * width, Block.gridMultiple.toInt()).toDouble(),
           roundToNearest(rand.nextDouble() * height, Block.gridMultiple.toInt()).toDouble());
     }
-    while (blocks.any((block) => block.position == possiblePosition
-        || possiblePosition.x < 0 || possiblePosition.x > width
-        || possiblePosition.y < 0 || possiblePosition.y > height));
+    while (blocks.any((block) => block.position == possiblePosition)
+        || possiblePosition.x >= width || possiblePosition.y >= height);
 
     return new FoodBlock(possiblePosition);
   }
