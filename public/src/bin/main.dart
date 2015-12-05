@@ -16,6 +16,7 @@ class Movement {
       if (handled) {
         switch (e.keyCode) {
           case KeyCode.W:
+          case KeyCode.Z:
             if (direction != Direction.down) {
               direction = Direction.up;
             }
@@ -31,6 +32,7 @@ class Movement {
             }
             break;
           case KeyCode.A:
+          case KeyCode.Q:
             if (direction != Direction.right) {
               direction = Direction.left;
             }
