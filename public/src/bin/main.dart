@@ -52,6 +52,7 @@ void main() {
   window.animationFrame.then(render);
 }
 
+int score = 0;
 double lastNow = 0.0;
 bool gameOver = false;
 
@@ -74,6 +75,11 @@ void render(double now) {
 
     currentFoodBlock.draw();
     snake.draw();
+
+    // draw score
+    ctx.setFillColorRgb(30, 30, 30);
+    ctx.font = '12pt sans-serif';
+    ctx.fillText('Score: $score', 10, 25);
 
     // draw border
     ctx.beginPath();
@@ -215,6 +221,7 @@ class Snake {
 
     if (newPathCellPosition == currentFoodBlock.position) {
       currentFoodBlock = new FoodBlock.findSuitablePosition(_cells);
+      score += 100;
       _addBlock();
     }
 
