@@ -234,14 +234,3 @@ class Snake {
 }
 
 int roundToNearest(num x, int nearest) => (x / nearest).round() * nearest;
-
-class TypedMath<T extends num> {
-  T clamp(num x, T bounds0, T bounds1) =>
-      Math.max(
-          Math.min(
-              x,
-              Math.max(bounds0, bounds1)
-          ),
-          Math.min(bounds0, bounds1)
-      );
-}
