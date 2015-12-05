@@ -1,4 +1,5 @@
 import 'dart:html';
+import 'dart:math' as Math;
 import 'package:vector_math/vector_math.dart';
 
 final CanvasElement canvas = querySelector('#canvas');
@@ -51,13 +52,6 @@ void main() {
 
 double lastNow = 0.0;
 
-bool tmp = false;
-bool tmp2 = false;
-bool tmp3 = false;
-bool tmp4 = false;
-bool tmp5 = false;
-bool tmp6 = false;
-
 void render(double now) {
   ctx.clearRect(0, 0, width, height);
 
@@ -69,36 +63,7 @@ void render(double now) {
     snake.update();
   }
 
-  if (now >= 5000 && ! tmp) {
-    snake.addBlock();
-    tmp = true;
-  }
-
-  if (now >= 10000 && ! tmp2) {
-    snake.addBlock();
-    tmp2 = true;
-  }
-
-  if (now >= 15000 && ! tmp3) {
-    snake.addBlock();
-    tmp3 = true;
-  }
-
-  if (now >= 20000 && ! tmp4) {
-    snake.addBlock();
-    tmp4 = true;
-  }
-
-  if (now >= 25000 && ! tmp5) {
-    snake.addBlock();
-    tmp5 = true;
-  }
-
-  if (now >= 30000 && ! tmp6) {
-    snake.addBlock();
-    tmp6 = true;
-  }
-
+  currentFoodBlock.draw();
   snake.draw();
 
   window.animationFrame.then(render);
@@ -117,71 +82,126 @@ class SnakePathCell {
   String toString() => 'SnakePathCell {position: $position}';
 }
 
-class SnakeBlock {
+abstract class Block {
   static const double padding = 10.0;
-  static const double width = 50.0;
-  static const double height = 50.0;
+  static const double sideLength = 50.0;
+  static const double gridMultiple = sideLength + padding;
 
   Vector2 position;
 
-  SnakeBlock(this.position);
+  Block(this.position);
 
-  void draw() => ctx.fillRect(position.x, position.y, width, height);
+  void draw();
 
   @override
   String toString() => 'SnakeBlock {position: $position}';
 }
 
-class Snake {
-  static const double toMoveX = SnakeBlock.width + SnakeBlock.padding;
-  static const double toMoveY = SnakeBlock.height + SnakeBlock.padding;
+class SnakeBlock extends Block {
+  SnakeBlock(Vector2 position) : super(position);
 
-  final List<SnakePathCell> cells = new List();
-  final List<SnakeBlock> blocks = new List();
+  @override
+  void draw() {
+    ctx.setFillColorRgb(30, 30, 30);
+    ctx.fillRect(position.x, position.y, Block.sideLength, Block.sideLength);
+  }
+}
+
+Math.Random rand = new Math.Random();
+
+class FoodBlock extends Block {
+  FoodBlock(Vector2 position) : super(position);
+
+  factory FoodBlock.findSuitablePosition(List<SnakePathCell> blocks) {
+    Vector2 possiblePosition;
+
+    do {
+      possiblePosition = new Vector2(
+          roundToNearest(rand.nextDouble() * Block.gridMultiple * 15, Block.gridMultiple.toInt()).toDouble(),
+          roundToNearest(rand.nextDouble() * Block.gridMultiple * 15, Block.gridMultiple.toInt()).toDouble());
+    }
+    while (blocks.any((block) => block.position == possiblePosition));
+
+    return new FoodBlock(possiblePosition);
+  }
+
+  @override
+  void draw() {
+    ctx.setFillColorRgb(23, 150, 240);
+    ctx.fillRect(position.x, position.y, Block.sideLength, Block.sideLength);
+  }
+
+  @override
+  String toString() => 'SnakeBlock {position: $position}';
+}
+
+FoodBlock currentFoodBlock = new FoodBlock.findSuitablePosition(new List());
+
+class Snake {
+  final List<SnakePathCell> _cells = new List();
+  final List<SnakeBlock> _blocks = new List();
 
   Snake(SnakeBlock rootBlock) {
-    blocks.add(rootBlock);
+    _blocks.add(rootBlock);
   }
 
   void update() {
     Vector2 newPathCellPosition;
 
-    if (cells.isEmpty) {
-      newPathCellPosition = new Vector2.copy(blocks.first.position);
+    if (_cells.isEmpty) {
+      newPathCellPosition = new Vector2.copy(_blocks.first.position);
     }
     else {
-      newPathCellPosition = new Vector2.copy(cells.first.position);
+      newPathCellPosition = new Vector2.copy(_cells.first.position);
     }
 
     switch (movement.direction) {
       case Direction.up:
-        newPathCellPosition.add(new Vector2(0.0, -toMoveY));
+        newPathCellPosition.add(new Vector2(0.0, -Block.gridMultiple));
         break;
       case Direction.right:
-        newPathCellPosition.add(new Vector2(toMoveX, 0.0));
+        newPathCellPosition.add(new Vector2(Block.gridMultiple, 0.0));
         break;
       case Direction.down:
-        newPathCellPosition.add(new Vector2(0.0, toMoveY));
+        newPathCellPosition.add(new Vector2(0.0, Block.gridMultiple));
         break;
       case Direction.left:
-        newPathCellPosition.add(new Vector2(-toMoveX, 0.0));
+        newPathCellPosition.add(new Vector2(-Block.gridMultiple, 0.0));
         break;
     }
 
-    cells.insert(0, new SnakePathCell(newPathCellPosition));
-
-    if (blocks.length < cells.length) {
-      cells.removeRange(blocks.length + 1, cells.length);
+    if (newPathCellPosition == currentFoodBlock.position) {
+      currentFoodBlock = new FoodBlock.findSuitablePosition(_cells);
+      _addBlock();
     }
 
-    for (int i = 0; i < blocks.length; i++) {
-      blocks[i].position.setFrom(cells[i].position);
+    _cells.insert(0, new SnakePathCell(newPathCellPosition));
+
+    if (_blocks.length < _cells.length) {
+      _cells.removeRange(_blocks.length + 1, _cells.length);
+    }
+
+    for (int i = 0; i < _blocks.length; i++) {
+      _blocks[i].position.setFrom(_cells[i].position);
     }
 
     movement.handled = true;
   }
 
-  void draw() => blocks.forEach((e) => e.draw());
+  void draw() => _blocks.forEach((e) => e.draw());
 
-  void addBlock() => blocks.add(new SnakeBlock(cells[blocks.length].position));
+  void _addBlock() => _blocks.add(new SnakeBlock(_cells[_blocks.length].position));
+}
+
+int roundToNearest(num x, int nearest) => (x / nearest).round() * nearest;
+
+class TypedMath<T extends num> {
+  T clamp(num x, T bounds0, T bounds1) =>
+      Math.max(
+          Math.min(
+              x,
+              Math.max(bounds0, bounds1)
+          ),
+          Math.min(bounds0, bounds1)
+      );
 }
