@@ -220,9 +220,9 @@ class Snake {
     }
 
     if (newPathCellPosition == currentFoodBlock.position) {
-      currentFoodBlock = new FoodBlock.findSuitablePosition(_cells);
       score += 100;
       _addBlock();
+      currentFoodBlock = new FoodBlock.findSuitablePosition(_cells);
     }
 
     movement.handled = true;
@@ -230,7 +230,7 @@ class Snake {
 
   void draw() => _blocks.forEach((e) => e.draw());
 
-  void _addBlock() => _blocks.add(new SnakeBlock(_cells[_blocks.length].position));
+  void _addBlock() => _blocks.add(new SnakeBlock(new Vector2.copy(_cells[_blocks.length].position)));
 }
 
 int roundToNearest(num x, int nearest) => (x / nearest).round() * nearest;
