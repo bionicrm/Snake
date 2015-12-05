@@ -141,10 +141,12 @@ class FoodBlock extends Block {
 
     do {
       possiblePosition = new Vector2(
-          roundToNearest(rand.nextDouble() * width - Block.padding, Block.gridMultiple.toInt()).toDouble(),
-          roundToNearest(rand.nextDouble() * height - Block.padding, Block.gridMultiple.toInt()).toDouble());
+          roundToNearest(rand.nextDouble() * width, Block.gridMultiple.toInt()).toDouble(),
+          roundToNearest(rand.nextDouble() * height, Block.gridMultiple.toInt()).toDouble());
     }
-    while (blocks.any((block) => block.position == possiblePosition));
+    while (blocks.any((block) => block.position == possiblePosition
+        || possiblePosition.x < 0 || possiblePosition.x > width
+        || possiblePosition.y < 0 || possiblePosition.y > height));
 
     return new FoodBlock(possiblePosition);
   }
