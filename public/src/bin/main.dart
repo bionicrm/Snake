@@ -8,7 +8,7 @@ final int width = canvas.width = (Block.gridMultiple * 24 - Block.padding).toInt
 final int height = canvas.height = (Block.gridMultiple * 12 - Block.padding).toInt();
 
 class Movement {
-  Direction direction = Direction.up;
+  Direction direction = Direction.right;
   bool handled = false;
 
   void setUp() {
@@ -44,7 +44,7 @@ class Movement {
 }
 
 final Movement movement = new Movement()..setUp();
-final Snake snake = new Snake(new SnakeBlock(new Vector2(300.0, 300.0)));
+final Snake snake = new Snake(new SnakeBlock(new Vector2.all(Block.gridMultiple)));
 
 FoodBlock currentFoodBlock = new FoodBlock.findSuitablePosition(new List());
 
@@ -59,32 +59,36 @@ void render(double now) {
   ctx.clearRect(0, 0, width, height);
 
   if (gameOver) {
-    return;
+    ctx.setFillColorRgb(180, 50, 50);
+    ctx.font = '5em sans-serif';
+    ctx.fillText('GAME OVER', 50, 100);
   }
+  else {
+    final bool updateSnake = (now - lastNow >= 200);
 
-  final bool updateSnake = (now - lastNow >= 200);
+    if (updateSnake) {
+      lastNow = now;
 
-  if (updateSnake) {
-    lastNow = now;
+      snake.update();
+    }
 
-    snake.update();
+    currentFoodBlock.draw();
+    snake.draw();
+
+    // draw border
+    ctx.beginPath();
+    ctx.setStrokeColorRgb(0, 0, 0);
+    ctx.lineWidth = 5;
+    ctx.moveTo(0.5, 0.5);
+    ctx.lineTo(width + 0.5, 0.5);
+    ctx.moveTo(width + 0.5, 0.5);
+    ctx.lineTo(width + 0.5, height + 0.5);
+    ctx.moveTo(width + 0.5, height + 0.5);
+    ctx.lineTo(0.5, height + 0.5);
+    ctx.moveTo(0.5, height + 0.5);
+    ctx.lineTo(0.5, 0.5);
+    ctx.stroke();
   }
-
-  currentFoodBlock.draw();
-  snake.draw();
-
-  ctx.beginPath();
-  ctx.setFillColorRgb(150, 30, 40);
-  ctx.lineWidth = 5;
-  ctx.moveTo(0.5, 0.5);
-  ctx.lineTo(width + 0.5, 0.5);
-  ctx.moveTo(width + 0.5, 0.5);
-  ctx.lineTo(width + 0.5, height + 0.5);
-  ctx.moveTo(width + 0.5, height + 0.5);
-  ctx.lineTo(0.5, height + 0.5);
-  ctx.moveTo(0.5, height + 0.5);
-  ctx.lineTo(0.5, 0.5);
-  ctx.stroke();
 
   window.animationFrame.then(render);
 }
@@ -137,12 +141,10 @@ class FoodBlock extends Block {
 
     do {
       possiblePosition = new Vector2(
-          roundToNearest(rand.nextDouble() * width, Block.gridMultiple.toInt()).toDouble(),
-          roundToNearest(rand.nextDouble() * height, Block.gridMultiple.toInt()).toDouble());
+          roundToNearest(rand.nextDouble() * width - Block.padding, Block.gridMultiple.toInt()).toDouble(),
+          roundToNearest(rand.nextDouble() * height - Block.padding, Block.gridMultiple.toInt()).toDouble());
     }
     while (blocks.any((block) => block.position == possiblePosition));
-
-    print('New food: $possiblePosition');
 
     return new FoodBlock(possiblePosition);
   }
@@ -198,6 +200,15 @@ class Snake {
 
     for (int i = 0; i < _blocks.length; i++) {
       _blocks[i].position.setFrom(_cells[i].position);
+    }
+
+    final double rootX = _blocks[0].position.x;
+    final double rootY = _blocks[0].position.y;
+
+    if (_blocks.getRange(1, _blocks.length).any((block) =>
+        _blocks.first.position == block.position) || rootX < 0 || rootX > width
+        || rootY < 0 || rootY > height) {
+      gameOver = true;
     }
 
     if (newPathCellPosition == currentFoodBlock.position) {
