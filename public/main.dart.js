@@ -7301,7 +7301,7 @@
       }
       throw "Unable to print message: " + String(string);
     }
-  }], ["", "public/src/bin/main.dart",, F, {
+  }], ["", "src/bin/main.dart",, F, {
     "^": "",
     main: [function() {
       C.Window_methods.get$animationFrame(window).then$1(F.main__render$closure());
@@ -7370,6 +7370,7 @@
         if (t1.handled)
           switch (J.get$keyCode$x(e)) {
             case 87:
+            case 90:
               if (t1.direction !== C.Direction_2)
                 t1.direction = C.Direction_0;
               break;
@@ -7382,6 +7383,7 @@
                 t1.direction = C.Direction_2;
               break;
             case 65:
+            case 81:
               if (t1.direction !== C.Direction_1)
                 t1.direction = C.Direction_3;
               break;
