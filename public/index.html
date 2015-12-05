@@ -9,8 +9,14 @@
               margin: 0;
           }
 
-          canvas {
+          #canvas-container {
+              display: flex;
+              height: 100vh;
+          }
+
+          #canvas {
               display: block;
+              margin: auto;
           }
       </style>
 
@@ -18,7 +24,9 @@
   </head>
 
   <body>
-    <canvas id="canvas"></canvas>
+    <div id="canvas-container">
+        <canvas id="canvas"></canvas>
+    </div>
 
     <script type="application/dart" src="src/bin/main.dart"></script>
   </body>

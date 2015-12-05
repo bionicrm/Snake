@@ -4,8 +4,8 @@ import 'package:vector_math/vector_math.dart';
 
 final CanvasElement canvas = querySelector('#canvas');
 final CanvasRenderingContext2D ctx = canvas.context2D;
-final int width = canvas.width = window.innerWidth;
-final int height = canvas.height = window.innerHeight;
+final int width = canvas.width = (Block.gridMultiple * 24 - Block.padding).toInt();
+final int height = canvas.height = (Block.gridMultiple * 12 - Block.padding).toInt();
 
 class Movement {
   Direction direction = Direction.up;
@@ -46,14 +46,21 @@ class Movement {
 final Movement movement = new Movement()..setUp();
 final Snake snake = new Snake(new SnakeBlock(new Vector2(300.0, 300.0)));
 
+FoodBlock currentFoodBlock = new FoodBlock.findSuitablePosition(new List());
+
 void main() {
   window.animationFrame.then(render);
 }
 
 double lastNow = 0.0;
+bool gameOver = false;
 
 void render(double now) {
   ctx.clearRect(0, 0, width, height);
+
+  if (gameOver) {
+    return;
+  }
 
   final bool updateSnake = (now - lastNow >= 200);
 
@@ -65,6 +72,19 @@ void render(double now) {
 
   currentFoodBlock.draw();
   snake.draw();
+
+  ctx.beginPath();
+  ctx.setFillColorRgb(150, 30, 40);
+  ctx.lineWidth = 5;
+  ctx.moveTo(0.5, 0.5);
+  ctx.lineTo(width + 0.5, 0.5);
+  ctx.moveTo(width + 0.5, 0.5);
+  ctx.lineTo(width + 0.5, height + 0.5);
+  ctx.moveTo(width + 0.5, height + 0.5);
+  ctx.lineTo(0.5, height + 0.5);
+  ctx.moveTo(0.5, height + 0.5);
+  ctx.lineTo(0.5, 0.5);
+  ctx.stroke();
 
   window.animationFrame.then(render);
 }
@@ -107,7 +127,7 @@ class SnakeBlock extends Block {
   }
 }
 
-Math.Random rand = new Math.Random();
+final Math.Random rand = new Math.Random();
 
 class FoodBlock extends Block {
   FoodBlock(Vector2 position) : super(position);
@@ -117,10 +137,12 @@ class FoodBlock extends Block {
 
     do {
       possiblePosition = new Vector2(
-          roundToNearest(rand.nextDouble() * Block.gridMultiple * 15, Block.gridMultiple.toInt()).toDouble(),
-          roundToNearest(rand.nextDouble() * Block.gridMultiple * 15, Block.gridMultiple.toInt()).toDouble());
+          roundToNearest(rand.nextDouble() * width, Block.gridMultiple.toInt()).toDouble(),
+          roundToNearest(rand.nextDouble() * height, Block.gridMultiple.toInt()).toDouble());
     }
     while (blocks.any((block) => block.position == possiblePosition));
+
+    print('New food: $possiblePosition');
 
     return new FoodBlock(possiblePosition);
   }
@@ -134,8 +156,6 @@ class FoodBlock extends Block {
   @override
   String toString() => 'SnakeBlock {position: $position}';
 }
-
-FoodBlock currentFoodBlock = new FoodBlock.findSuitablePosition(new List());
 
 class Snake {
   final List<SnakePathCell> _cells = new List();
@@ -170,11 +190,6 @@ class Snake {
         break;
     }
 
-    if (newPathCellPosition == currentFoodBlock.position) {
-      currentFoodBlock = new FoodBlock.findSuitablePosition(_cells);
-      _addBlock();
-    }
-
     _cells.insert(0, new SnakePathCell(newPathCellPosition));
 
     if (_blocks.length < _cells.length) {
@@ -183,6 +198,11 @@ class Snake {
 
     for (int i = 0; i < _blocks.length; i++) {
       _blocks[i].position.setFrom(_cells[i].position);
+    }
+
+    if (newPathCellPosition == currentFoodBlock.position) {
+      currentFoodBlock = new FoodBlock.findSuitablePosition(_cells);
+      _addBlock();
     }
 
     movement.handled = true;
