@@ -7301,7 +7301,7 @@
       }
       throw "Unable to print message: " + String(string);
     }
-  }], ["", "/media/bionicrm/Extra/Code/Snake/public/src/bin/main.dart",, F, {
+  }], ["", "public/src/bin/main.dart",, F, {
     "^": "",
     main: [function() {
       C.Window_methods.get$animationFrame(window).then$1(F.main__render$closure());
@@ -7433,44 +7433,34 @@
         return "SnakeBlock {position: " + J.toString$0$(this.position) + "}";
       },
       static: {FoodBlock_FoodBlock$findSuitablePosition: function(blocks) {
-          var t1, t2, t3, t4, t5, t6;
+          var t1, t2, t3, t4, t5, t6, t7, t8;
           t1 = {};
           H.assertSubtype(blocks, "$isList", [F.SnakePathCell], "$asList");
           t1._captured_possiblePosition_0 = null;
           do {
             t2 = $.$get$rand();
-            t3 = C.JSNumber_methods.$mul(t2.nextDouble$0(), $.$get$width());
-            t4 = C.JSInt_methods.toInt$0(60);
-            t3 = C.JSDouble_methods.round$0(t3 / t4);
-            t2 = C.JSNumber_methods.$mul(t2.nextDouble$0(), $.$get$height());
+            t3 = t2.nextDouble$0();
+            t4 = $.$get$width();
+            t3 = C.JSNumber_methods.$mul(t3, t4);
             t5 = C.JSInt_methods.toInt$0(60);
-            t2 = C.JSDouble_methods.round$0(t2 / t5);
-            t6 = new Float32Array(2);
-            t6[0] = t3 * t4;
-            t6[1] = t2 * t5;
-            t1._captured_possiblePosition_0 = new T.Vector2(t6);
-          } while (C.JSArray_methods.any$1(blocks, new F.FoodBlock_FoodBlock$findSuitablePosition_closure(t1)));
+            t3 = C.JSDouble_methods.round$0(t3 / t5);
+            t2 = t2.nextDouble$0();
+            t6 = $.$get$height();
+            t2 = C.JSNumber_methods.$mul(t2, t6);
+            t7 = C.JSInt_methods.toInt$0(60);
+            t2 = C.JSDouble_methods.round$0(t2 / t7);
+            t8 = new Float32Array(2);
+            t8[0] = t3 * t5;
+            t8[1] = t2 * t7;
+            t1._captured_possiblePosition_0 = new T.Vector2(t8);
+          } while (C.JSArray_methods.any$1(blocks, new F.FoodBlock_FoodBlock$findSuitablePosition_closure(t1)) || C.JSNumber_methods.$ge(H.doubleTypeCheck(t1._captured_possiblePosition_0._v2storage[0]), t4) || C.JSNumber_methods.$ge(H.doubleTypeCheck(t1._captured_possiblePosition_0._v2storage[1]), t6));
           return new F.FoodBlock(t1._captured_possiblePosition_0);
         }}
     },
     FoodBlock_FoodBlock$findSuitablePosition_closure: {
       "^": "Closure:1;_main$_box_0",
       call$1: function(block) {
-        var t1, t2;
-        t1 = this._main$_box_0;
-        if (!J.$eq$(J.get$position$x(block), t1._captured_possiblePosition_0)) {
-          t2 = H.doubleTypeCheck(t1._captured_possiblePosition_0._v2storage[0]);
-          if (!(t2 < 0))
-            if (!C.JSNumber_methods.$gt(t2, $.$get$width())) {
-              t1 = H.doubleTypeCheck(t1._captured_possiblePosition_0._v2storage[1]);
-              t1 = t1 < 0 || C.JSNumber_methods.$gt(t1, $.$get$height());
-            } else
-              t1 = true;
-          else
-            t1 = true;
-        } else
-          t1 = true;
-        return t1;
+        return J.$eq$(J.get$position$x(block), this._main$_box_0._captured_possiblePosition_0);
       }
     },
     Snake: {
